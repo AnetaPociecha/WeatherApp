@@ -13,6 +13,7 @@ import android.widget.TextView
 import com.example.weatherapp.Controllers.APIController
 
 import com.example.weatherapp.Model.WeatherResponse
+import com.google.firebase.database.FirebaseDatabase
 import kotlinx.android.synthetic.main.activity_item_list.*
 import kotlinx.android.synthetic.main.item_list_content.view.*
 import kotlinx.android.synthetic.main.item_list.*
@@ -49,16 +50,16 @@ class ItemListActivity : AppCompatActivity() {
 
         setSupportActionBar(toolbar)
         toolbar.title = title
-        apiCtrl.getForecastForCity(44418){result -> forecastList.add(result)
-        println(result)
-        println(forecastList.size)}
+        apiCtrl.getForecastForCity(44418) { result ->
+            forecastList.add(result)
+            println(result)
+            println(forecastList.size)
+        }
 
         addCityBtnn.setOnClickListener { view ->
             Snackbar.make(view, "Achoj", Snackbar.LENGTH_LONG)
                 .setAction("Action", null).show()
         }
-
-        println("BEZNNNNN")
 
         if (item_detail_container != null) {
             // The detail container view will be present only in the
@@ -69,12 +70,24 @@ class ItemListActivity : AppCompatActivity() {
         }
 
         setupRecyclerView(item_list)
+
+        logToFirebase()
     }
 
     private fun setupRecyclerView(recyclerView: RecyclerView) {
         println("TESTSTSTS")
         recyclerView.adapter = SimpleItemRecyclerViewAdapter(this, forecastList, twoPane)
     }
+
+    private fun logToFirebase() {
+        val database = FirebaseDatabase.getInstance()
+        val logs = database.getReference("logs")
+
+        val id = logs.push().key
+        val currentTimestamp = System.currentTimeMillis()
+        logs.child("log" + id.toString()).setValue(currentTimestamp.toString())
+    }
+
 
     class SimpleItemRecyclerViewAdapter(
         private val parentActivity: ItemListActivity,
@@ -105,7 +118,7 @@ class ItemListActivity : AppCompatActivity() {
                 } else {
                     val intent = Intent(v.context, ItemDetailActivity::class.java).apply {
                         putExtra(ItemDetailFragment.ARG_ITEM_ID, item.title)
-                        putExtra("prognoza",item.consolidated_weather)
+                        putExtra("prognoza", item.consolidated_weather)
 
                     }
                     v.context.startActivity(intent)
