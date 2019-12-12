@@ -1,37 +1,33 @@
 package com.example.weatherapp
 
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import com.example.weatherapp.Listeners.OnSwipeListener
+import com.example.weatherapp.Model.Consolidated_Weather
 import com.example.weatherapp.Model.DummyContent
 import kotlinx.android.synthetic.main.activity_item_detail.*
 import kotlinx.android.synthetic.main.item_detail.view.*
+import kotlin.math.roundToInt
 
-/**
- * A fragment representing a single Item detail screen.
- * This fragment is either contained in a [ItemListActivity]
- * in two-pane mode (on tablets) or a [ItemDetailActivity]
- * on handsets.
- */
+
 class ItemDetailFragment : Fragment() {
 
-    /**
-     * The dummy content this fragment is presenting.
-     */
-    private var item: DummyContent.DummyItem? = null
+    private var cityPrognose: List<Consolidated_Weather>? = null
+    private var idx: Int = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         arguments?.let {
-            if (it.containsKey(ARG_ITEM_ID)) {
-                // Load the dummy content specified by the fragment
-                // arguments. In a real-world scenario, use a Loader
-                // to load content from a content provider.
-                item = DummyContent.ITEM_MAP[it.getString(ARG_ITEM_ID)]
-                activity?.toolbar_layout?.title = item?.content
+            if (it.containsKey("miasto")) {
+                println(it.toString())
+
+                cityPrognose = it.getParcelableArrayList("prognoza")
+                activity?.toolbar_layout?.title = it.getCharSequence("miasto")
             }
         }
     }
@@ -42,19 +38,57 @@ class ItemDetailFragment : Fragment() {
     ): View? {
         val rootView = inflater.inflate(R.layout.item_detail, container, false)
 
-        // Show the dummy content as text in a TextView.
-        item?.let {
-            rootView.item_detail.text = "Test x+2"
+
+        rootView.nextDay.setOnClickListener {
+            if (idx < cityPrognose?.size?.minus(1) ?: 5) idx++
+            showPrognoseOfDay(idx, rootView)
         }
 
+        rootView.prevDay.setOnClickListener {
+            if (idx > 0) idx--
+            showPrognoseOfDay(idx, rootView)
+        }
+
+        rootView.setOnTouchListener(object : OnSwipeListener() {
+            override fun onSwipeLeft() {
+                Log.e("ViewSwipe", "Left")
+                if (idx > 0) idx--
+                Log.e("index", idx.toString())
+            }
+
+            override fun onSwipeRight() {
+                Log.e("ViewSwipe", "Right")
+                if (idx < cityPrognose?.size ?: 9) idx++
+                Log.e("index", idx.toString())
+            }
+        })
+
+        showPrognoseOfDay(idx, rootView)
         return rootView
     }
 
-    companion object {
-        /**
-         * The fragment argument representing the item ID that this fragment
-         * represents.
-         */
-        const val ARG_ITEM_ID = "item_id"
+
+    fun showPrognoseOfDay(day: Int, rootView: View) {
+        rootView.forecastDate.text = cityPrognose?.get(day)?.applicable_date
+        rootView.maxTemp.text =
+            cityPrognose?.get(day)?.max_temp?.roundToInt().toString() + " \u2103"
+        rootView.minTemp.text =
+            cityPrognose?.get(day)?.min_temp?.roundToInt().toString() + " \u2103"
+        rootView.wind_direction.text =
+            cityPrognose?.get(day)?.wind_direction?.roundToInt().toString() + " " + cityPrognose?.get(
+                day
+            )?.wind_direction_compass
+        rootView.wind_speed.text =
+            "%.2f".format(cityPrognose?.get(day)?.wind_speed?.times(1.609344)) + " kph"
+        rootView.air_pressure.text =
+            cityPrognose?.get(day)?.air_pressure?.roundToInt().toString() + " mbar"
+        rootView.vis.text = "%.2f".format(cityPrognose?.get(day)?.visibility) + " mil"
+        rootView.predictability.text =
+            "%d".format(cityPrognose?.get(day)?.predictability) + " %"
+        rootView.humidity.text = "%.2f".format(cityPrognose?.get(day)?.humidity) + " %"
+
+
     }
+
+
 }

@@ -3,6 +3,7 @@ package com.example.weatherapp
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
@@ -17,10 +18,14 @@ import com.google.firebase.database.FirebaseDatabase
 import kotlinx.android.synthetic.main.activity_item_list.*
 import kotlinx.android.synthetic.main.item_list_content.view.*
 import kotlinx.android.synthetic.main.item_list.*
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.ImplicitReflectionSerializer
 import kotlinx.serialization.UnstableDefault
 import org.jetbrains.anko.contentView
+import org.jetbrains.anko.startActivityForResult
 import java.io.Serializable
+import kotlin.math.roundToInt
 
 /**
  * An activity representing a list of Pings. This activity
@@ -39,7 +44,10 @@ class ItemListActivity : AppCompatActivity() {
     private var twoPane: Boolean = false
     @ImplicitReflectionSerializer
     private var apiCtrl: APIController = APIController()
-    private var forecastList: ArrayList<WeatherResponse> = ArrayList()
+    var forecastList: ArrayList<WeatherResponse> = ArrayList()
+    var woeids = listOf(44418, 523920, 2487956)
+    private val job = Job()
+
 
     @SuppressLint("ResourceType")
     @UnstableDefault
@@ -49,23 +57,21 @@ class ItemListActivity : AppCompatActivity() {
         setContentView(R.layout.activity_item_list)
 
         setSupportActionBar(toolbar)
-        toolbar.title = title
-        apiCtrl.getForecastForCity(44418) { result ->
-            forecastList.add(result)
-            println(result)
-            println(forecastList.size)
+        toolbar.title = "TEST"
+
+        runBlocking {
+            for (woe in woeids)
+                forecastList.add(apiCtrl.getForecastForCity(woe))
+
         }
+
 
         addCityBtnn.setOnClickListener { view ->
-            Snackbar.make(view, "Achoj", Snackbar.LENGTH_LONG)
-                .setAction("Action", null).show()
+            startActivityForResult<AddCity>(1)
         }
+        Log.d("Dane", forecastList.toString())
 
         if (item_detail_container != null) {
-            // The detail container view will be present only in the
-            // large-screen layouts (res/values-w900dp).
-            // If this view is present, then the
-            // activity should be in two-pane mode.
             twoPane = true
         }
 
@@ -75,7 +81,6 @@ class ItemListActivity : AppCompatActivity() {
     }
 
     private fun setupRecyclerView(recyclerView: RecyclerView) {
-        println("TESTSTSTS")
         recyclerView.adapter = SimpleItemRecyclerViewAdapter(this, forecastList, twoPane)
     }
 
@@ -104,7 +109,7 @@ class ItemListActivity : AppCompatActivity() {
                 if (twoPane) {
                     val fragment = ItemDetailFragment().apply {
                         arguments = Bundle().apply {
-                            putString(ItemDetailFragment.ARG_ITEM_ID, item.title)
+                            putString("miasto", item.title)
                             putSerializable(
                                 "prognoza",
                                 item.consolidated_weather as Serializable
@@ -117,7 +122,7 @@ class ItemListActivity : AppCompatActivity() {
                         .commit()
                 } else {
                     val intent = Intent(v.context, ItemDetailActivity::class.java).apply {
-                        putExtra(ItemDetailFragment.ARG_ITEM_ID, item.title)
+                        putExtra("miasto", item.title)
                         putExtra("prognoza", item.consolidated_weather)
 
                     }
@@ -135,7 +140,8 @@ class ItemListActivity : AppCompatActivity() {
         override fun onBindViewHolder(holder: ViewHolder, position: Int) {
             val item = values[position]
             holder.cityNameView.text = item.title
-            holder.temperatureView.text = item.consolidated_weather?.first()?.max_temp.toString()
+            holder.temperatureView.text =
+                item.consolidated_weather?.first()?.max_temp!!.roundToInt().toString() + " \u2103"
 
             with(holder.itemView) {
                 tag = item

@@ -1,4 +1,16 @@
 <resources>
     <string name="app_name">WeatherApp</string>
     <string name="title_item_detail">Item Detail</string>
+    <string name="min_temp">Minimalna temperatura</string>
+    <string name="max_temp">Maksymalna temperatura</string>
+    <string name="app_date">Data</string>
+    <string name="wind_direction">Kierunek wiatru</string>
+    <string name="pressure">Ciśnienie atmosferyczne</string>
+    <string name="wind_speed">Prędkość wiatru</string>
+    <string name="humidity">Wilgotność powietrza</string>
+    <string name="visibility">Widoczność</string>
+    <string name="predictability">Prawdopodobieństwo</string>
+    <string name="nextDay">Następny dzień</string>
+    <string name="previousDay">Poprzedni dzień</string>
+
 </resources>

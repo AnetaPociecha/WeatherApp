@@ -22,7 +22,6 @@ class ItemDetailActivity : AppCompatActivity() {
         setSupportActionBar(detail_toolbar)
 
 
-
         // Show the Up button in the action bar.
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
@@ -41,9 +40,14 @@ class ItemDetailActivity : AppCompatActivity() {
             val fragment = ItemDetailFragment().apply {
                 arguments = Bundle().apply {
                     putString(
-                        ItemDetailFragment.ARG_ITEM_ID,
-                        intent.getStringExtra(ItemDetailFragment.ARG_ITEM_ID)
+                        "miasto",
+                        intent.getStringExtra("miasto")
                     )
+                    putParcelableArrayList(
+                        "prognoza",
+                        intent.getParcelableArrayListExtra("prognoza")
+                    )
+
                 }
             }
 
@@ -52,6 +56,7 @@ class ItemDetailActivity : AppCompatActivity() {
                 .commit()
         }
     }
+
 
     override fun onOptionsItemSelected(item: MenuItem) =
         when (item.itemId) {
