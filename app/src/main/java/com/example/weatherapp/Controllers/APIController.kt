@@ -14,6 +14,7 @@ import java.net.URL
 @ImplicitReflectionSerializer
 class APIController {
     fun APIController() = Unit
+
     @UnstableDefault
     suspend fun getForecastForCity(
         woeid: Int

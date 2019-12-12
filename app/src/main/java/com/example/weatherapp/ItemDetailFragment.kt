@@ -38,7 +38,6 @@ class ItemDetailFragment : Fragment() {
     ): View? {
         val rootView = inflater.inflate(R.layout.item_detail, container, false)
 
-
         rootView.nextDay.setOnClickListener {
             if (idx < cityPrognose?.size?.minus(1) ?: 5) idx++
             showPrognoseOfDay(idx, rootView)

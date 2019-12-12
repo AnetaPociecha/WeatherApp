@@ -5,7 +5,6 @@ import android.os.Parcelable
 import kotlinx.serialization.Serializable
 
 
-
 @Serializable
 data class Consolidated_Weather (
     val applicable_date: String,

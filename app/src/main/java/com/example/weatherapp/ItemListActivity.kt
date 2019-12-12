@@ -41,13 +41,16 @@ class ItemListActivity : AppCompatActivity() {
      * Whether or not the activity is in two-pane mode, i.e. running on a tablet
      * device.
      */
+
+    val woeids = listOf(44418, 523920, 2487956)
+
     private var twoPane: Boolean = false
+
     @ImplicitReflectionSerializer
     private var apiCtrl: APIController = APIController()
-    var forecastList: ArrayList<WeatherResponse> = ArrayList()
-    var woeids = listOf(44418, 523920, 2487956)
-    private val job = Job()
 
+    var forecastList: ArrayList<WeatherResponse> = ArrayList()
+    private val job = Job()
 
     @SuppressLint("ResourceType")
     @UnstableDefault
@@ -124,7 +127,6 @@ class ItemListActivity : AppCompatActivity() {
                     val intent = Intent(v.context, ItemDetailActivity::class.java).apply {
                         putExtra("miasto", item.title)
                         putExtra("prognoza", item.consolidated_weather)
-
                     }
                     v.context.startActivity(intent)
                 }
